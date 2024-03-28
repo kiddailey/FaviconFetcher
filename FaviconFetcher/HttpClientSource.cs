@@ -231,7 +231,7 @@ namespace FaviconFetcher
                 _ = request.Headers.UserAgent.TryParseAdd(UserAgent);
 #endif
                 _ = request.Headers.AcceptLanguage.TryParseAdd("en-US,en"); // TODO : Get system locale languages
-                _ = request.Headers.AcceptEncoding.TryParseAdd("deflate,gzip;q=1.0,*;q=0.5");
+                _ = request.Headers.AcceptEncoding.TryParseAdd("deflate,gzip");
 
                 response = await SourceHttpClient.SendAsync(request, cancellationToken);
                 response.EnsureSuccessStatusCode();
