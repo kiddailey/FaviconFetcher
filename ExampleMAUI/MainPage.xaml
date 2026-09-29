@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ExampleMAUI.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="10,10"
+            Spacing="25">
+
+            <Entry Placeholder="URL" Text="{Binding URIToScanOrFetch}" Keyboard="Url" />
+
+            <Grid HorizontalOptions="FillAndExpand" ColumnSpacing="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="33*" />
+                    <ColumnDefinition Width="33*" />
+                    <ColumnDefinition Width="33*" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0" Grid.Row="0" Text="Min" FontSize="Small" TextColor="Gray" />
+                <Label Grid.Column="1" Grid.Row="0" Text="Max" FontSize="Small" TextColor="Gray" />
+                <Label Grid.Column="2" Grid.Row="0" Text="Perfect" FontSize="Small" TextColor="Gray" />
+                
+                <Entry Grid.Column="0" Grid.Row="1" Text="{Binding MinSize}" Keyboard="Numeric" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding MaxSize}" Keyboard="Numeric" />
+                <Entry Grid.Column="2" Grid.Row="1" Text="{Binding PerfectSize}" Keyboard="Numeric" />
+            </Grid>
+
+            <Grid HorizontalOptions="FillAndExpand" ColumnSpacing="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="5*" />
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Column="0" Text="Scan" Clicked="ScanButton_Clicked" HorizontalOptions="FillAndExpand" />
+                <Button Grid.Column="1" Text="Fetch" Clicked="FetchButton_Clicked" HorizontalOptions="FillAndExpand" />
+            </Grid>
+
+            <ListView Margin="5" x:Name="ScanResultsListView" IsVisible="false" ItemsSource="{Binding ScanResults}">
+                <ListView.Header>
+                    <Label Text="RESULTS" FontSize="Small" TextColor="Gray" />
+                </ListView.Header>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <HorizontalStackLayout Margin="0,0,0,5">
+                                <Label Margin="0,0,10,0">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <FormattedString.Spans>
+                                                <Span Text="{Binding ExpectedSize.Width}" />
+                                                <Span Text="x" />
+                                                <Span Text="{Binding ExpectedSize.Height}" />
+                                            </FormattedString.Spans>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label Text="{Binding Location}" LineBreakMode="CharacterWrap" />
+                            </HorizontalStackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <Grid x:Name="FetchResultsImageGrid" RowSpacing="10" IsVisible="False">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Text="RESULT" FontSize="Small" TextColor="Gray"/>
+                <Image Grid.Row="1" x:Name="FetchResultsImage" />
+                <Button Grid.Row="2" Text="Save" HorizontalOptions="FillAndExpand" Clicked="SaveButton_Clicked" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
