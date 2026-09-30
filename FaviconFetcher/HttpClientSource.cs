@@ -149,7 +149,18 @@ namespace FaviconFetcher
             // SVG file
             if (_IsContentTypeSvg(contentType))
             {
-                images.Add(SVGIconImage.FromStream(memoryStream, IconSize.Scaleable));
+                var svgImage = (SVGIconImage)SVGIconImage.FromStream(memoryStream, IconSize.Scaleable);
+                if (svgImage.IsValid)
+                {
+                    images.Add(svgImage);
+                }
+                else
+                {
+                    // SVG parsing failed (e.g. an incompatible SkiaSharp/SVG library
+                    // pairing) - don't return a blank image as if it were real.
+                    svgImage.Dispose();
+                }
+                memoryStream.Position = 0;
             }
 
             // Ico file
@@ -238,12 +249,17 @@ namespace FaviconFetcher
 
                 return response;
             }
-            catch (TaskCanceledException)
+            catch (TaskCanceledException ex)
             {
+                Console.WriteLine($"[HttpClientSource] Request to {uri} timed out/cancelled: {ex.Message}");
                 return null;
             }
             catch (HttpRequestException ex)
             {
+                // response is null here when the failure happened before a response
+                // was ever received (DNS, TLS/certificate, connection reset, etc.),
+                // as opposed to the server returning a real non-2xx status.
+                Console.WriteLine($"[HttpClientSource] Request to {uri} failed: {ex}");
                 return response != null
                     ? new HttpResponseMessage(response.StatusCode)
                     : new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);

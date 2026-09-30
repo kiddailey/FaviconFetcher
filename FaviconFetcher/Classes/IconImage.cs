@@ -1,6 +1,5 @@
 ﻿using FaviconFetcher.Classes;
 using SkiaSharp;
-using SkiaSharp.Extended.Svg;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
