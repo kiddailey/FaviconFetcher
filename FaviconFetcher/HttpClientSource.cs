@@ -337,26 +337,47 @@ namespace FaviconFetcher
         {
             if (_httpClientHandler == null)
             {
-                _httpClientHandler = new HttpClientHandler();
-                _httpClientHandler.UseProxy = false;
-                _httpClientHandler.AllowAutoRedirect = true;
-                _httpClientHandler.MaxAutomaticRedirections = 5;
-                _httpClientHandler.MaxConnectionsPerServer = 1;
+                // Configure a local handler and only publish it to the static
+                // field once finished, so a failure can never leave a
+                // half-configured handler cached for every later request.
+                var handler = new HttpClientHandler();
+
+                // Not every platform's handler supports every setting (e.g. the
+                // native iOS/Mac handler throws on UseProxy = false), so each
+                // one is applied independently and unsupported ones are skipped.
+                TrySet(() => handler.UseProxy = false);
+                TrySet(() => handler.AllowAutoRedirect = true);
+                TrySet(() => handler.MaxAutomaticRedirections = 5);
+                TrySet(() => handler.MaxConnectionsPerServer = 1);
                 // Request mechanism sets Allow-Encoding header to gzip/deflate, so we need to enable it
-                _httpClientHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                TrySet(() => handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate);
 
                 // Some hosts require cookies to persist after redirects
-                _httpClientHandler.CookieContainer = new CookieContainer(); ;
-                _httpClientHandler.UseCookies = true;
+                TrySet(() => handler.CookieContainer = new CookieContainer());
+                TrySet(() => handler.UseCookies = true);
 
                 if (source.RequestsProxy != null)
                 {
-                    _httpClientHandler.UseProxy = true;
-                    _httpClientHandler.Proxy = source.RequestsProxy;
+                    TrySet(() => handler.UseProxy = true);
+                    TrySet(() => handler.Proxy = source.RequestsProxy);
                 }
+
+                _httpClientHandler = handler;
             }
 
             return _httpClientHandler;
+        }
+
+        private static void TrySet(Action setter)
+        {
+            try
+            {
+                setter();
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException || ex is PlatformNotSupportedException)
+            {
+                // Setting not supported by this platform's handler; keep defaults
+            }
         }
 
     }
